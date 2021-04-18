@@ -1,0 +1,6 @@
+name: Homeroom
+version: ${project.version}
+main: net.kunmc.lab.homeroom.Homeroom
+api-version: 1.16
+authors: [Kamesuta]
+description: 帰りの会プラグイン - 台の上に立ったプレイヤーのDiscordのミュートを解除します
