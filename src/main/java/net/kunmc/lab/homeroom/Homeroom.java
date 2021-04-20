@@ -5,7 +5,6 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.block.CommandBlock;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,7 +15,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -71,21 +73,25 @@ public final class Homeroom extends JavaPlugin {
                 if (!homeroomEnabled || homeroomLocation == null)
                     return;
 
-                Collection<Player> before = homeroomPlayers == null || homeroomPlayers.isEmpty()
-                        ? Collections.emptyList()
-                        : homeroomPlayers;
-                Collection<Player> players = homeroomLocation.getNearbyPlayers(homeroomRadius);
-                players.stream()
-                        .filter(p -> !before.contains(p))
-                        .map(p -> binding.getDiscordId(p.getUniqueId(), p.getName()))
-                        .filter(Objects::nonNull)
-                        .forEach(p -> logic.setMute(p, false));
-                before.stream()
-                        .filter(p -> !players.contains(p))
-                        .map(p -> binding.getDiscordId(p.getUniqueId(), p.getName()))
-                        .filter(Objects::nonNull)
-                        .forEach(p -> logic.setMute(p, true));
-                homeroomPlayers = players;
+                try {
+                    Collection<Player> before = homeroomPlayers == null || homeroomPlayers.isEmpty()
+                            ? Collections.emptyList()
+                            : homeroomPlayers;
+                    Collection<Player> players = homeroomLocation.getNearbyPlayers(homeroomRadius);
+                    players.stream()
+                            .filter(p -> !before.contains(p))
+                            .map(p -> binding.getDiscordId(p.getUniqueId(), p.getName()))
+                            .filter(Objects::nonNull)
+                            .forEach(p -> logic.setMute(p, false));
+                    before.stream()
+                            .filter(p -> !players.contains(p))
+                            .map(p -> binding.getDiscordId(p.getUniqueId(), p.getName()))
+                            .filter(Objects::nonNull)
+                            .forEach(p -> logic.setMute(p, true));
+                    homeroomPlayers = players;
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Failed to set mute", e);
+                }
             }
         }.runTaskTimer(this, 0, 20);
     }
@@ -98,6 +104,8 @@ public final class Homeroom extends JavaPlugin {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         switch (command.getName()) {
+            case "vc-on":
+            case "vc-off":
             case "vc":
                 List<Player> players = Bukkit.selectEntities(sender, args[0]).stream()
                         .filter(Player.class::isInstance)
@@ -120,7 +128,16 @@ public final class Homeroom extends JavaPlugin {
                 }
 
                 try {
-                    switch (args[1]) {
+                    String subCommand = args.length <= 1 ? "" : args[1];
+                    switch (command.getName()) {
+                        case "vc-on":
+                            subCommand = "on";
+                            break;
+                        case "vc-off":
+                            subCommand = "off";
+                            break;
+                    }
+                    switch (subCommand) {
                         case "on":
                             discords.forEach(p -> logic.setMute(p, false));
                             sender.sendMessage(ChatColor.LIGHT_PURPLE + "[かめすたプラグイン] " + ChatColor.GREEN + "VC ON!");
@@ -187,6 +204,12 @@ public final class Homeroom extends JavaPlugin {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         switch (command.getName()) {
+            case "vc-on":
+            case "vc-off":
+                return Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(e -> e.startsWith(args[0]))
+                        .collect(Collectors.toList());
             case "vc":
                 switch (args.length) {
                     case 1:

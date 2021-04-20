@@ -76,15 +76,6 @@ public class DiscordLogic extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (!enableUnmuteOnLeave)
-            return;
-
-        if (voiceChannelId == event.getOldValue().getIdLong())
-            event.getMember().mute(false).queue();
-    }
-
-    @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
         if (!enableUnmuteOnLeave)
             return;

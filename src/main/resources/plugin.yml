@@ -9,6 +9,14 @@ commands:
     description: 指定したプレイヤーのVCをON/OFFします  指定なしでトグル(切り替え)します
     usage: /vc <player> [on|off]
     permission: homeroom.vc
+  vc-on:
+    description: 指定したプレイヤーのVCをON/OFFします
+    usage: /vc-on <player>
+    permission: homeroom.vc
+  vc-off:
+    description: 指定したプレイヤーのVCをON/OFFします
+    usage: /vc-off <player>
+    permission: homeroom.vc
   homeroom:
     description: 帰りの会モードを設定します
     usage: |-
