@@ -1,6 +1,26 @@
 name: Homeroom
 version: ${project.version}
 main: net.kunmc.lab.homeroom.Homeroom
-api-version: 1.16
 authors: [Kamesuta]
 description: 帰りの会プラグイン - 台の上に立ったプレイヤーのDiscordのミュートを解除します
+
+commands:
+  vc:
+    description: 指定したプレイヤーのVCをON/OFFします  指定なしでトグル(切り替え)します
+    usage: /vc <player> [on|off]
+    permission: homeroom.vc
+  homeroom:
+    description: 帰りの会モードを設定します
+    usage: |-
+      /homeroom <on|off>     ON/OFF
+      /homeroom set [radius] 台の位置を指定します
+      /homeroom status       ON/OFFの状態確認
+    permission: homeroom.mode
+
+permissions:
+  homeroom.vc:
+    description: VCをON/OFFできます
+    default: op
+  homeroom.mode:
+    description: 帰りの会モードを設定します
+    default: op

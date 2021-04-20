@@ -1,0 +1,17 @@
+discord:
+  token: <token>
+  guildId: <guild id>
+  voiceChannelId: <voice channel id>
+  enableUnmuteOnLeave: true
+
+homeroom:
+  enabled: false
+  location:
+    ==: org.bukkit.Location
+    world: world
+    x: 0
+    y: 0
+    z: 0
+    pitch: 0
+    yaw: 0
+  radius: 1
