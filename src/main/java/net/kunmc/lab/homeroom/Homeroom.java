@@ -41,12 +41,18 @@ public final class Homeroom extends JavaPlugin {
         saveDefaultConfig();
         FileConfiguration config = getConfig();
 
-        logic = new DiscordLogic(
-                config.getString("discord.token"),
-                config.getLong("discord.guildId"),
-                config.getLong("discord.voiceChannelId"),
-                config.getBoolean("discord.enableUnmuteOnLeave")
-        );
+        try {
+            logic = new DiscordLogic(
+                    config.getString("discord.token"),
+                    config.getLong("discord.guildId"),
+                    config.getLong("discord.voiceChannelId"),
+                    config.getBoolean("discord.enableUnmuteOnLeave")
+            );
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, "Failed to create Discord logic", e);
+            setEnabled(false);
+            return;
+        }
 
         homeroomEnabled = config.getBoolean("homeroom.enabled");
         homeroomLocation = config.getLocation("homeroom.location");
@@ -89,7 +95,7 @@ public final class Homeroom extends JavaPlugin {
                             .filter(Objects::nonNull)
                             .forEach(p -> logic.setMute(p, true));
                     homeroomPlayers = players;
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     LOGGER.log(Level.SEVERE, "Failed to set mute", e);
                 }
             }
@@ -98,7 +104,11 @@ public final class Homeroom extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        logic.shutdown();
+        try {
+            logic.shutdown();
+        } catch (Throwable e) {
+            LOGGER.log(Level.SEVERE, "Failed to finalize Discord", e);
+        }
     }
 
     @Override
@@ -139,18 +149,30 @@ public final class Homeroom extends JavaPlugin {
                     }
                     switch (subCommand) {
                         case "on":
-                            discords.forEach(p -> logic.setMute(p, false));
+                            try {
+                                discords.forEach(p -> logic.setMute(p, false));
+                            } catch (Throwable e) {
+                                LOGGER.log(Level.SEVERE, "Failed to set vc on", e);
+                            }
                             sender.sendMessage(ChatColor.LIGHT_PURPLE + "[かめすたプラグイン] " + ChatColor.GREEN + "VC ON!");
                             break;
                         case "off":
-                            discords.forEach(p -> logic.setMute(p, true));
+                            try {
+                                discords.forEach(p -> logic.setMute(p, true));
+                            } catch (Throwable e) {
+                                LOGGER.log(Level.SEVERE, "Failed to set vc off", e);
+                            }
                             sender.sendMessage(ChatColor.LIGHT_PURPLE + "[かめすたプラグイン] " + ChatColor.GREEN + "VC OFF!");
                             break;
                         default:
-                            discords.forEach(p -> {
-                                Boolean muted = logic.toggleMute(p);
-                                sender.sendMessage(ChatColor.LIGHT_PURPLE + "[かめすたプラグイン] " + ChatColor.GREEN + "VC " + (muted ? "OFF!" : "ON!"));
-                            });
+                            try {
+                                discords.forEach(p -> {
+                                    Boolean muted = logic.toggleMute(p);
+                                    sender.sendMessage(ChatColor.LIGHT_PURPLE + "[かめすたプラグイン] " + ChatColor.GREEN + "VC " + (muted ? "OFF!" : "ON!"));
+                                });
+                            } catch (Throwable e) {
+                                LOGGER.log(Level.SEVERE, "Failed to toggle vc", e);
+                            }
                             break;
                     }
                 } catch (PermissionException e) {
