@@ -150,6 +150,7 @@ public final class Homeroom extends JavaPlugin {
                     switch (subCommand) {
                         case "on":
                             try {
+                                discords.forEach(p -> logic.setMute(p, true));
                                 discords.forEach(p -> logic.setMute(p, false));
                             } catch (Throwable e) {
                                 LOGGER.log(Level.SEVERE, "Failed to set vc on", e);
@@ -228,15 +229,21 @@ public final class Homeroom extends JavaPlugin {
         switch (command.getName()) {
             case "vc-on":
             case "vc-off":
-                return Bukkit.getOnlinePlayers().stream()
-                        .map(Player::getName)
+                return Stream.concat(
+                        Stream.of("@a", "@a[distance=.."),
+                        Bukkit.getOnlinePlayers().stream()
+                                .map(Player::getName)
+                )
                         .filter(e -> e.startsWith(args[0]))
                         .collect(Collectors.toList());
             case "vc":
                 switch (args.length) {
                     case 1:
-                        return Bukkit.getOnlinePlayers().stream()
-                                .map(Player::getName)
+                        return Stream.concat(
+                                Stream.of("@a", "@a[distance=.."),
+                                Bukkit.getOnlinePlayers().stream()
+                                        .map(Player::getName)
+                        )
                                 .filter(e -> e.startsWith(args[0]))
                                 .collect(Collectors.toList());
                     case 2:
